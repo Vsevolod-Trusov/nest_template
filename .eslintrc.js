@@ -12,7 +12,7 @@ module.exports = {
     node: true,
     jest: true,
   },
-  ignorePatterns: ['.eslintrc.js'],
+  ignorePatterns: ['.eslintrc.js', 'node_modules/', 'build/', 'dist/'],
   rules: {
     'prettier/prettier': 'error',
     'import/order': 'error',
