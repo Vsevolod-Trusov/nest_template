@@ -1,0 +1,16 @@
+-- dependancies of [EXPRESS]: 
+dependencies: {
+@nestjs/platform-express
+}
+devDependencies: {
+@types/express
+}
+
+-- dependancies of [Fastify]:
+dependencies: {
+@fastify/static
+@nestjs/platform-fastify
+}
+devDependencies: {
+@types/express
+}

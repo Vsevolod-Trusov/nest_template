@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://user:Seva2002@127.0.0.1:5432/shadow_test?schema=public"
+}
+
+model User {
+  id                     Int            @id @default(autoincrement())
+  email                  String         @unique
+  linkedinLink           String         @unique
+  password               String
+  role                   Role?          @relation(fields: [roleName], references: [name], onDelete: NoAction, onUpdate: Cascade)
+  roleName               String // FK
+  chats                  ChatsToUsers[]
+  profileAvatar          String
+  temporalExhibitionLink String
+  profileIsActivated     Boolean        @default(false)
+  followers              Int
+  lastEntry              DateTime?
+  createdAt              DateTime       @default(now())
+  updatedAt              DateTime       @updatedAt
+  deletedAt              DateTime? // soft delete
+  exhibition             Exhibition[]
+  chat                   Chat[]
+}
+
+model Role {
+  name        String               @id
+  permissions PermissionsToRoles[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+  deletedAt   DateTime? // soft delete
+  user        User[]
+}
+
+model Permission {
+  name      String               @id
+  roles     PermissionsToRoles[]
+  category  Category             @default(read)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+  deletedAt DateTime? // soft delete
+}
+
+model PermissionsToRoles {
+  role           Role       @relation(fields: [roleName], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  roleName       String
+  permission     Permission @relation(fields: [permissionName], references: [name], onDelete: Cascade, onUpdate: Cascade)
+  permissionName String
+  assignedAt     DateTime   @default(now())
+  assignedBy     String
+
+  @@id([roleName, permissionName])
+}
+
+enum Category {
+  read
+  write
+  delete
+  all
+  invoke
+  deny
+  grant
+  create
+  update
+  remove
+}
+
+model Exhibition {
+  id            String    @id @default(uuid())
+  name          String
+  estimation    Int?
+  description   String
+  meetingDate   DateTime?
+  author        User?     @relation(fields: [authorId], references: [id], onDelete: NoAction, onUpdate: Cascade)
+  authorId      Int
+  inviteLink    String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime? // soft delete
+  feedbacks Feedback[]
+}
+
+model Feedback {
+  title      String       @id
+  message    String
+  exhibition   Exhibition?  @relation(fields: [exhibitionId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  exhibitionId String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  deletedAt  DateTime? // soft delete
+}
+
+model Chat {
+  id          String         @id @default(uuid())
+  description String?
+  admin       User?          @relation(fields: [adminId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  adminId     Int
+  members     ChatsToUsers[]
+  buffer      String
+  attachments String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime? // soft delete
+}
+
+model ChatsToUsers {
+  chat       Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  chatId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId     Int
+  assignedAt DateTime @default(now())
+  assignedBy String
+
+  @@id([chatId, userId])
+}
+
+model Recording {
+  name       String    @id
+  recordLink String
+  video      Bytes?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime? // soft delete
+}
+
+model Event {
+  name        String    @id
+  description String?
+  meetingDate DateTime?
+  status      Status    @default(init)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime? // soft delete
+}
+
+enum Status {
+  init
+  accepted
+  declined
+  updated
+  deleted
+  passed
+  expired
+}
